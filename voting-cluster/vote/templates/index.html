@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Películas Lens</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .star-rating {
+            direction: rtl;
+            font-size: 24px;
+        }
+        .star-rating input {
+            display: none;
+        }
+        .star-rating label {
+            color: #ddd;
+            cursor: pointer;
+            font-size: 30px;
+        }
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #f39c12;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Películas Lens</h1>
+        <div class="row">
+            {% for movie in movies.items %}
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ movie.Title }}</h5>
+                        <p class="card-text">Géneros:</p>
+                        <ul>
+                            {% for genre in movie.Genres.split('|') %}
+                            <li>{{ genre }}</li>
+                            {% endfor %}
+                        </ul>
+                        <p class="card-text"><small class="text-muted">MovieID: {{ movie.MovieID }}</small></p>
+
+                        <form onsubmit="enviarVoto(event)">
+                            <div class="star-rating">
+                                <input id="star5-{{ movie.MovieID }}" type="radio" name="rating" value="5">
+                                <label for="star5-{{ movie.MovieID }}" title="5 estrellas">&#9733;</label>
+                                <input id="star4-{{ movie.MovieID }}" type="radio" name="rating" value="4">
+                                <label for="star4-{{ movie.MovieID }}" title="4 estrellas">&#9733;</label>
+                                <input id="star3-{{ movie.MovieID }}" type="radio" name="rating" value="3">
+                                <label for="star3-{{ movie.MovieID }}" title="3 estrellas">&#9733;</label>
+                                <input id="star2-{{ movie.MovieID }}" type="radio" name="rating" value="2">
+                                <label for="star2-{{ movie.MovieID }}" title="2 estrellas">&#9733;</label>
+                                <input id="star1-{{ movie.MovieID }}" type="radio" name="rating" value="1">
+                                <label for="star1-{{ movie.MovieID }}" title="1 estrella">&#9733;</label>
+                            </div>
+                            <input type="hidden" name="movie_id" value="{{ movie.MovieID }}">
+                            <button type="submit" class="btn btn-primary mt-3">Votar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Paginación -->
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+              <!-- Botón para ir a la primera página -->
+              {% if movies.page > 1 %}
+              <li class="page-item">
+                  <a class="page-link" href="?page=1" aria-label="First">
+                      <span aria-hidden="true">&laquo;&laquo;</span>
+                  </a>
+              </li>
+              <li class="page-item">
+                  <a class="page-link" href="?page={{ movies.page - 1 }}" aria-label="Previous">
+                      <span aria-hidden="true">&laquo;</span>
+                  </a>
+              </li>
+              {% endif %}
+      
+              <!-- Lógica de paginación para mostrar solo 7 páginas -->
+              {% set start_page = 1 %}
+              {% set end_page = 7 %}
+      
+              <!-- Ajustar el rango de páginas dinámicamente -->
+              {% if movies.page > 4 %}
+                  {% set start_page = movies.page - 3 %}
+                  {% set end_page = movies.page + 3 %}
+              {% endif %}
+      
+              <!-- Si estás en las últimas páginas, ajusta el rango -->
+              {% if end_page > movies.pages %}
+                  {% set end_page = movies.pages %}
+                  {% set start_page = end_page - 6 if end_page - 6 > 0 else 1 %}
+              {% endif %}
+      
+              <!-- Mostrar las páginas calculadas -->
+              {% for page_num in range(start_page, end_page + 1) %}
+              <li class="page-item {% if page_num == movies.page %}active{% endif %}">
+                  <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+              </li>
+              {% endfor %}
+      
+              <!-- Botón para ir a la última página -->
+              {% if movies.page < movies.pages %}
+              <li class="page-item">
+                  <a class="page-link" href="?page={{ movies.page + 1 }}" aria-label="Next">
+                      <span aria-hidden="true">&raquo;</span>
+                  </a>
+              </li>
+              <li class="page-item">
+                  <a class="page-link" href="?page={{ movies.pages }}" aria-label="Last">
+                      <span aria-hidden="true">&raquo;&raquo;</span>
+                  </a>
+              </li>
+              {% endif %}
+          </ul>
+        </nav>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      function enviarVoto(e) {
+        e.preventDefault()
+        const form = new FormData(e.target)
+        const rating = form.get('rating');
+        const movie_id = form.get('movie_id');
+
+        if (!rating) {
+          alert('Por favor selecciona una estrella antes de votar.');
+          return;
+        }
+
+        const data = {
+          movie_id: movie_id,
+          rating: rating
+        };
+
+
+        fetch('/vote', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la votación');
+                }
+                return response.json();
+            })
+            .then(result => {
+                alert('Gracias por votar');
+                console.log(result);
+            })
+            .catch(error => {
+                console.error('Hubo un problema con la votación:', error);
+            });
+      }
+    </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+services:
+  mssql:
+    build:
+      context: .
+    ports:
+      - 1433:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=StrongPass123!
+    command: /bin/bash -c "/opt/mssql/bin/sqlservr & sleep 30 && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'StrongPass123!' -d master -i /var/opt/mssql/app/init.sql && tail -f /dev/null"
+    volumes:
+      - ./init.sql:/var/opt/mssql/app/init.sql
+      - ./data:/var/opt/mssql/app/data
