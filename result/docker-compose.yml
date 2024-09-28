@@ -9,8 +9,6 @@ services:
       - "3000:3000"
     environment:
       - API_URL=http://44.207.8.227
-    volumes:
-      - .:/app
     networks:
       - app-network
 
