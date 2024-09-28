@@ -1,0 +1,27 @@
+services:
+  model:
+    build: 
+      context: ./model
+    environment:
+      SQL_SERVER: "${LOCAL_IP}"
+      SQL_DATABASE: "MovieLens"
+      SQL_USERNAME: "SA"
+      SQL_PASSWORD: "StrongPass123!"
+      PG_SERVER: "db"
+      PG_DATABASE: "MovieLens"
+      PG_USERNAME: "postgres"
+      PG_PASSWORD: "postgres"
+    ports:
+      - "8000:8000"
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "MovieLens"
+    ports:
+      - "5432:5432"
+    volumes:
+      - "./postgres/data:/var/lib/postgresql/data"
+      - "./init.sql:/docker-entrypoint-initdb.d/init.sql"
