@@ -1,77 +1,42 @@
-var express = require('express'),
-    async = require('async'),
-    { Pool } = require('pg'),
-    cookieParser = require('cookie-parser'),
-    app = express(),
-    server = require('http').Server(app),
-    io = require('socket.io')(server);
+const express = require('express');
+const axios = require('axios');
+const app = express();
+const PORT = process.env.PORT || 3000;
+const API_URL = process.env.API_URL; // Obtener la URL de la API desde la variable de entorno
 
-var port = process.env.PORT || 4000;
+// Configurar EJS como motor de vistas
+app.set('view engine', 'ejs');
 
-io.on('connection', function (socket) {
+// Servir archivos estáticos
+app.use(express.static('public'));
 
-  socket.emit('message', { text : 'Welcome!' });
+// Middleware para manejar datos de formularios
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-  socket.on('subscribe', function (data) {
-    socket.join(data.channel);
-  });
+// Ruta para mostrar el input y las recomendaciones
+app.get('/', (req, res) => {
+    res.render('index');
 });
 
-var pool = new Pool({
-  connectionString: 'postgres://postgres:postgres@db/postgres'
-});
+// Ruta para manejar la obtención de recomendaciones
+app.post('/recommendations', async (req, res) => {
+    const userId = req.body.userId;
+    const apiUrl = `${API_URL}/recommendations/${userId}`; // Usar la URL de la API desde la variable de entorno
 
-async.retry(
-  {times: 1000, interval: 1000},
-  function(callback) {
-    pool.connect(function(err, client, done) {
-      if (err) {
-        console.error("Waiting for db");
-      }
-      callback(err, client);
-    });
-  },
-  function(err, client) {
-    if (err) {
-      return console.error("Giving up");
+    try {
+        const response = await axios.get(apiUrl);
+        const movies = response.data.recommendations;
+
+        // Renderizar la vista de recomendaciones con las películas obtenidas
+        res.render('recommendations', { movies });
+    } catch (error) {
+        console.error('Error al obtener las recomendaciones:', error);
+        res.status(500).send('Error al obtener las recomendaciones');
     }
-    console.log("Connected to db");
-    getVotes(client);
-  }
-);
-
-function getVotes(client) {
-  client.query('SELECT vote, COUNT(id) AS count FROM votes GROUP BY vote', [], function(err, result) {
-    if (err) {
-      console.error("Error performing query: " + err);
-    } else {
-      var votes = collectVotesFromResult(result);
-      io.sockets.emit("scores", JSON.stringify(votes));
-    }
-
-    setTimeout(function() {getVotes(client) }, 1000);
-  });
-}
-
-function collectVotesFromResult(result) {
-  var votes = {a: 0, b: 0};
-
-  result.rows.forEach(function (row) {
-    votes[row.vote] = parseInt(row.count);
-  });
-
-  return votes;
-}
-
-app.use(cookieParser());
-app.use(express.urlencoded());
-app.use(express.static(__dirname + '/views'));
-
-app.get('/', function (req, res) {
-  res.sendFile(path.resolve(__dirname + '/views/index.html'));
 });
 
-server.listen(port, function () {
-  var port = server.address().port;
-  console.log('App running on port ' + port);
+// Iniciar el servidor
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en el puerto ${PORT}`);
 });

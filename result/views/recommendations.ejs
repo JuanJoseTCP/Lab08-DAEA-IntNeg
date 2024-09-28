@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Películas Recomendadas</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .star-rating {
+            direction: rtl;
+            font-size: 24px;
+        }
+        .star-rating input {
+            display: none;
+        }
+        .star-rating label {
+            color: #ddd;
+            cursor: pointer;
+            font-size: 30px;
+        }
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #f39c12;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Películas Recomendadas</h1>
+        <div class="row">
+            <% if (movies && movies.length > 0) { %>
+                <% movies.forEach(movie => { %>
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= movie.title %></h5>
+                            <p class="card-text">Géneros:</p>
+                            <ul>
+                                <% movie.genres.split('|').forEach(genre => { %>
+                                    <li><%= genre %></li>
+                                <% }) %>
+                            </ul>
+                            <p class="card-text"><small class="text-muted">MovieID: <%= movie.movie_id %></small></p>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            <% } else { %>
+                <p>No se encontraron recomendaciones.</p>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,18 +1,19 @@
-FROM node:18-slim
+FROM node:16
 
-WORKDIR /usr/local/app
+# Crear un directorio de trabajo en el contenedor
+WORKDIR /app
 
-RUN npm install -g nodemon
-
+# Copiar el package.json y package-lock.json
 COPY package*.json ./
 
-RUN npm ci && \
- npm cache clean --force && \
- mv /usr/local/app/node_modules /node_modules
+# Instalar las dependencias
+RUN npm install
 
+# Copiar el resto del código de la aplicación
 COPY . .
 
-ENV PORT 80
-EXPOSE 80
+# Exponer el puerto que utiliza la aplicación
+EXPOSE 3000
 
-CMD ["node", "server.js"]
+# Iniciar la aplicación
+CMD ["npm", "start"]

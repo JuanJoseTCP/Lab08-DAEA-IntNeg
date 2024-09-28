@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - API_URL=http://44.207.8.227
+    volumes:
+      - .:/app
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
