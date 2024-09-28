@@ -19,6 +19,7 @@ password = os.getenv('SQL_PASSWORD', 'StrongPass123!')  # Valor por defecto
 redis_host = os.getenv('REDIS_HOST', 'localhost')  # Valor por defecto
 
 connection_string = f'mssql+pyodbc://{username}:{password}@{server}/{database}?driver=ODBC+Driver+17+for+SQL+Server'
+print(connection_string)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
