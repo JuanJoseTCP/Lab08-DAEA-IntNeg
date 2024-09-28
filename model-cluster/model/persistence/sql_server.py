@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 import pymssql
 import os
 
@@ -19,3 +20,14 @@ def get_sql_server_connection():
   except pymssql.OperationalError as e:
     print(f"Error al conectar: {e}")
     return None
+  
+def test_sql_server_connection():
+  try:
+    conn = get_sql_server_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")
+    current_database = cursor.fetchall()
+    conn.close()
+    print({"sql_server_connection": f"Connected to SQL Server database: {current_database}"})
+  except Exception as e:
+    raise HTTPException(status_code=500, detail=f"Error connecting to SQL Server: {e}")

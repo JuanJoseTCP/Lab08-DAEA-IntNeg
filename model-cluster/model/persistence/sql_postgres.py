@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from  psycopg2 import OperationalError
 import psycopg2
 import os
@@ -23,3 +24,15 @@ def get_pg_server_connection():
   except OperationalError as e:
     print(f"Error al conectar: {e}")
     return None
+
+
+def test_postgres_connection():
+  try:
+    conn = get_pg_server_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema='public';")
+    current_database = cursor.fetchall()
+    conn.close()
+    print({"postgres_connection": f"Connected to PostgreSQL database: {current_database}"})
+  except Exception as e:
+    raise HTTPException(status_code=500, detail=f"Error connecting to PostgreSQL: {e}")
