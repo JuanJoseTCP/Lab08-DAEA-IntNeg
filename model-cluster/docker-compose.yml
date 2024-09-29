@@ -3,7 +3,7 @@ services:
     build: 
       context: ./model
     environment:
-      SQL_SERVER: "${LOCAL_IP}"
+      SQL_SERVER: "${SQL_SERVER}"
       SQL_DATABASE: "MovieLens"
       SQL_USERNAME: "SA"
       SQL_PASSWORD: "StrongPass123!"
@@ -11,7 +11,7 @@ services:
       PG_DATABASE: "MovieLens"
       PG_USERNAME: "postgres"
       PG_PASSWORD: "postgres"
-      KAFKA_HOST: "${LOCAL_IP}:9092"
+      KAFKA_HOST: "${KAFKA_HOST}:9092"
     ports:
       - "8000:8000"
     depends_on:

@@ -1,5 +1,6 @@
 sudo yum update -y
 sudo yum install -y docker
+sudo yum install -y libxcrypt-compat
 sudo service docker start
 sudo usermod -a -G docker ec2-user
 
@@ -7,8 +8,5 @@ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 
 sudo yum install git -y
-git clone https://github.com/JuanJoseTCP/Lab06-DAEA.git
-cd Lab06-DAEA/sql-server
-sudo yum install -y libxcrypt-compat
-
-docker-compose up -d
+git clone https://github.com/JuanJoseTCP/Lab08-DAEA-IntNeg.git
+cd Lab08-DAEA-IntNeg

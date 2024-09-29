@@ -8,7 +8,7 @@ services:
     ports:
       - "5000:80"
     environment:
-      SQL_SERVER: "${LOCAL_IP}"
+      SQL_SERVER: "${SQL_SERVER}"
       SQL_DATABASE: "MovieLens"
       SQL_USERNAME: "SA"
       SQL_PASSWORD: "StrongPass123!"
@@ -21,7 +21,7 @@ services:
       context: ./worker
     environment:
       REDIS_HOST: "redis"
-      KAFKA_HOST: "${LOCAL_IP}:9092"
+      KAFKA_HOST: "${KAFKA_HOST}:9092"
     depends_on:
       - redis
   
